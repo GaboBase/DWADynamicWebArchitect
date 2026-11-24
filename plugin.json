@@ -1,0 +1,15 @@
+{
+  "name": "dynamic-web-architect",
+  "displayName": "Dynamic Web Architect (DWA)",
+  "version": "2.0.0",
+  "description": "Motor determinista de arquitectura web, scaffolding inicial, enrutamiento dinamico de archivos (place-file), promocion por acoplamiento compartido (promote), linter DAG de fronteras (audit) y evolucion estructural para proyectos web.",
+  "logo": "assets/logo.svg",
+  "author": {
+    "name": "Dynamic Web Architect"
+  },
+  "suggestedPrompts": [
+    "/dynamic-web-architect init Crea la arquitectura optima para un SaaS de gestion clinica con Next.js App Router, TypeScript y Gemini API",
+    "/dynamic-web-architect place-file Donde debo ubicar InvoiceTable.tsx y formatCurrency.ts dentro del proyecto actual?",
+    "/dynamic-web-architect audit Audita fronteras DAG, nomenclatura, barriles, imports profundos y carpetas saturadas en este repositorio"
+  ]
+}

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <!-- 10% safety margin baked in: all visual geometry stays within [26..230] -->
+  <defs>
+    <linearGradient id="dwaBg" x1="32" y1="32" x2="224" y2="224" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1E3A8A"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="dwaAccent" x1="48" y1="48" x2="208" y2="208" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="55%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Architectural Hex Blueprint Shield -->
+  <rect x="28" y="28" width="200" height="200" rx="40" fill="url(#dwaBg)" stroke="url(#dwaAccent)" stroke-width="6"/>
+
+  <!-- Subtle Structural Grid -->
+  <path d="M78 52 V204 M128 52 V204 M178 52 V204 M52 88 H204 M52 128 H204 M52 168 H204" stroke="#38BDF8" stroke-opacity="0.16" stroke-width="2"/>
+
+  <!-- Unidirectional DAG Flow: App Shell -> Features -> Shared/Core -->
+  <!-- Connectors -->
+  <path d="M128 84 L82 126 M128 84 L174 126" stroke="#38BDF8" stroke-width="5" stroke-linecap="round"/>
+  <path d="M82 142 L106 178 M174 142 L150 178 M82 142 L150 178 M174 142 L106 178" stroke="#34D399" stroke-width="4" stroke-linecap="round" stroke-opacity="0.9"/>
+
+  <!-- Layer 1: Routing Shell (Top Node) -->
+  <rect x="94" y="54" width="68" height="30" rx="8" fill="#0EA5E9" stroke="#E0F2FE" stroke-width="3"/>
+  <circle cx="110" cy="69" r="3.5" fill="#E0F2FE"/>
+  <rect x="120" y="66" width="28" height="6" rx="3" fill="#E0F2FE"/>
+
+  <!-- Layer 2: Domain Features (Middle Nodes) -->
+  <rect x="50" y="114" width="64" height="30" rx="8" fill="#6366F1" stroke="#E0E7FF" stroke-width="3"/>
+  <rect x="62" y="126" width="40" height="6" rx="3" fill="#E0E7FF"/>
+
+  <rect x="142" y="114" width="64" height="30" rx="8" fill="#8B5CF6" stroke="#EDE9FE" stroke-width="3"/>
+  <rect x="154" y="126" width="40" height="6" rx="3" fill="#EDE9FE"/>
+
+  <!-- Layer 3: Shared & Core Foundation (Bottom Nodes) -->
+  <rect x="66" y="174" width="54" height="28" rx="8" fill="#10B981" stroke="#D1FAE5" stroke-width="3"/>
+  <rect x="136" y="174" width="54" height="28" rx="8" fill="#14B8A6" stroke="#CCFBF1" stroke-width="3"/>
+</svg>

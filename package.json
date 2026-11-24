@@ -1,0 +1,36 @@
+{
+  "name": "dynamic-web-architect",
+  "version": "2.0.0",
+  "description": "Dynamic Web Architect (DWA) — Deterministic architectural decision engine, scaffolding generator, dynamic file router, shared-coupling promoter, and DAG structural linter for web projects. Cross-platform plugin & skill for Antigravity, Codex, ChatGPT, and VS Code.",
+  "main": "src/index.cjs",
+  "bin": {
+    "dwa": "./bin/dwa.cjs",
+    "dynamic-web-architect": "./bin/dwa.cjs"
+  },
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "validate": "node scripts/validate-package.cjs",
+    "sync:global": "node scripts/sync-global-plugin.cjs",
+    "self:audit": "node bin/dwa.cjs audit ."
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "dynamic-web-architect",
+    "web-architecture",
+    "scaffolding",
+    "screaming-architecture",
+    "feature-driven",
+    "hexagonal-architecture",
+    "atomic-design",
+    "monorepo",
+    "dag-linter",
+    "antigravity-plugin",
+    "codex-plugin",
+    "agent-skill"
+  ],
+  "author": "Dynamic Web Architect",
+  "license": "MIT"
+}

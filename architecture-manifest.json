@@ -1,0 +1,88 @@
+{
+  "$schema": "https://dynamic-web-architect.dev/schemas/architecture-manifest.schema.json",
+  "schemaVersion": "2.0.0",
+  "project": "dynamic-web-architect",
+  "description": "Dynamic Web Architect (DWA v2.0) — Deterministic web architecture decision engine, scaffolding generator, dynamic file router, shared-coupling promoter, and DAG structural linter.",
+  "pattern": "feature-driven-screaming",
+  "complexityLevel": "high",
+  "complexityScores": {
+    "presentation": 1,
+    "domainComplexity": 4,
+    "dataAndState": 3,
+    "securityAndCompliance": 3,
+    "multiAppScale": 2,
+    "backendAutonomy": 5
+  },
+  "stack": {
+    "framework": "node-backend",
+    "language": "javascript",
+    "runtime": "node>=18",
+    "packageManager": "npm",
+    "aiSdk": null
+  },
+  "routingShell": {
+    "enabled": false,
+    "directory": null,
+    "rule": "CLI shell lives in bin/dwa.cjs and delegates to src/index.cjs."
+  },
+  "pathAliases": {},
+  "boundaries": {
+    "domainModules": "src/features",
+    "coreInfrastructure": "src/core"
+  },
+  "importRules": {
+    "src/core": [
+      "none"
+    ],
+    "src/features/*": [
+      "src/core"
+    ]
+  },
+  "namingConventions": {
+    "directories": "kebab-case (e.g., user-profile/, billing-history/)",
+    "components": "PascalCase (e.g., UserCard.tsx, PaymentModal.vue)",
+    "hooks": "camelCase with mandatory use prefix (e.g., useAuthSession.ts)",
+    "services": "kebab-case with .service.<ext> or .api.<ext> suffix (e.g., checkout.service.ts)",
+    "useCases": "kebab-case with .use-case.<ext> suffix (e.g., process-payment.use-case.ts)",
+    "schemas": "kebab-case with .schema.<ext> suffix (e.g., order.schema.ts)",
+    "types": "kebab-case with .types.<ext> suffix (e.g., customer.types.ts)",
+    "utils": "kebab-case with .util.<ext> suffix (e.g., format-currency.util.ts)",
+    "tests": "co-located *.test.<ext> or *.spec.<ext> next to subject under test"
+  },
+  "barrelPolicy": {
+    "mode": "feature-public-api-only",
+    "allowedPaths": [
+      "src/features/*/index.cjs"
+    ],
+    "forbiddenPaths": [
+      "src/core/index.*"
+    ]
+  },
+  "securityProfile": {
+    "level": "standard",
+    "verticalHints": [],
+    "serverOnlyModules": [],
+    "forbiddenClientImports": []
+  },
+  "maxLooseFilesPerDirectory": 10,
+  "promotionThreshold": 2,
+  "activeFeatures": [
+    "auditing",
+    "evolution",
+    "routing",
+    "scaffolding"
+  ],
+  "evolution": {
+    "nextRecommendedPattern": "monorepo-workspaces",
+    "migrationTriggers": [
+      "Add standalone VS Code extension or web visualizer app alongside CLI engine"
+    ]
+  },
+  "metadata": {
+    "generatedBy": "dynamic-web-architect@2.0.0",
+    "createdAt": "2026-11-18T00:00:00.000Z",
+    "updatedAt": "2026-11-18T06:40:32.361Z",
+    "manifestChecksum": "e5baa96efd90a2fb1f5fb8eedf3ef337cc8bcd2d19ca3295ef645f684cea4fd7",
+    "lastHealthScore": 100
+  }
+}

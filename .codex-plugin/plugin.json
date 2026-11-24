@@ -1,0 +1,41 @@
+{
+  "name": "dynamic-web-architect",
+  "displayName": "Dynamic Web Architect (DWA)",
+  "version": "2.0.0",
+  "description": "Deterministic web architecture decision engine, scaffolding generator, dynamic file router (place-file), shared-coupling promoter (promote), DAG boundary linter (audit), and structural sync for web projects.",
+  "author": {
+    "name": "Dynamic Web Architect"
+  },
+  "keywords": [
+    "dynamic-web-architect",
+    "architecture",
+    "scaffolding",
+    "feature-driven",
+    "screaming-architecture",
+    "hexagonal",
+    "atomic-design",
+    "monorepo",
+    "dag-linter",
+    "refactoring"
+  ],
+  "skills": "./skills",
+  "interface": {
+    "displayName": "Dynamic Web Architect",
+    "shortDescription": "Adaptive web architecture & file governance",
+    "developerName": "Dynamic Web Architect",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive"
+    ],
+    "brandColor": "#1E40AF",
+    "brandColorDark": "#60A5FA",
+    "logo": "./assets/logo.svg",
+    "composerIcon": "./assets/logo.svg",
+    "defaultPrompt": [
+      "/dynamic-web-architect init Design and scaffold the optimal architecture for a SaaS web app with Next.js App Router and TypeScript.",
+      "/dynamic-web-architect place-file Decide the canonical path, naming, and exports for a new component or service in this repo.",
+      "/dynamic-web-architect audit Audit DAG import boundaries, naming conventions, barrel discipline, and loose-file density in this project."
+    ],
+    "longDescription": "Dynamic Web Architect (DWA) is a deterministic architectural decision engine and dynamic filesystem governor for web projects across their full lifecycle. It classifies projects across 6 canonical architectural patterns (Classic by Type, Atomic Design, Feature-Driven + Screaming Architecture with Routing Shell, Hexagonal/Clean, Modular Monolith Fullstack, and Monorepo Workspaces), enforces naming and controlled barrel conventions, dynamically routes new files (place-file), promotes cross-module coupled assets safely to shared/core (promote), audits DAG boundaries, circular dependencies, loose-file density, and AI/server client leakage (audit), reconciles architecture-manifest.json and ARCHITECTURE.md (sync), and evaluates evolutionary transitions with a Transition Cost Guardrail (migrate)."
+  }
+}

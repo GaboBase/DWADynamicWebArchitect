@@ -1,0 +1,10 @@
+# Dynamic Web Architect (DWA) — Architectural Governance Guardrails
+
+When creating, structuring, refactoring, or auditing a web project (or when the user invokes `/dynamic-web-architect`, `/architect`, `/place-file`, `/promote`, or `/audit-arch`):
+
+1. **Check Source of Truth First**: If `architecture-manifest.json` or `ARCHITECTURE.md` exists in the workspace root, read it before creating or moving files and preserve its declared pattern, boundaries, and path aliases (`@/*`).
+2. **Enforce Unidirectional DAG**: Maintain strict downward dependencies (`app/pages/routes -> features -> shared/core`; or `interfaces -> application -> domain` in Hexagonal). Never import internal files across sibling features (`features/a/*` must not import `features/b/components/*`).
+3. **Standardize Naming & Controlled Barrels**: Use `kebab-case` directories, `PascalCase` UI components, `useCamelCase` hooks, and semantic suffixes (`*.service.ts`, `*.use-case.ts`, `*.schema.ts`, `*.types.ts`, `*.util.ts`). Never create generic `helpers/`, `misc/`, or `common/` folders, and avoid internal sub-barrels inside `shared/ui/` or `features/*/components/`.
+4. **Co-location & Shared Promotion**: Default new domain files inside their owning feature. When `>= 2` features require the same resource, promote it to `src/shared/` (or `src/core/`) and update imports using `@/*` path aliases.
+5. **Security & Non-Overengineering**: Keep AI SDKs (`@google/genai`, `openai`) and DB/secret clients strictly inside server-only `src/core/ai/` or `src/infrastructure/` (never inside `"use client"` files). Do not impose heavy enterprise patterns on small landing pages or prototypes.
+6. **Read-Only by Default**: Architectural audits, classifications, and placement advice do not authorize file mutations; apply disk changes only when explicitly requested by the user.

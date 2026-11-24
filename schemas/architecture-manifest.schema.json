@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dynamic-web-architect.dev/schemas/architecture-manifest.schema.json",
+  "title": "Dynamic Web Architect Manifest",
+  "description": "Canonical source-of-truth contract for web project directory architecture, DAG import boundaries, naming governance, and lifecycle evolution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "project",
+    "pattern",
+    "complexityLevel",
+    "stack",
+    "pathAliases",
+    "boundaries",
+    "importRules",
+    "namingConventions",
+    "barrelPolicy",
+    "maxLooseFilesPerDirectory"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "pattern": {
+      "type": "string",
+      "enum": [
+        "classic-by-type",
+        "atomic-design",
+        "feature-driven-screaming",
+        "hexagonal-clean",
+        "modular-monolith-fullstack",
+        "monorepo-workspaces"
+      ]
+    },
+    "complexityLevel": {
+      "type": "string",
+      "enum": ["low", "medium", "medium-high", "high", "very-high"]
+    },
+    "complexityScores": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 5
+      }
+    },
+    "stack": {
+      "type": "object",
+      "required": ["framework", "language"],
+      "properties": {
+        "framework": { "type": "string" },
+        "language": { "type": "string", "enum": ["typescript", "javascript", "python", "go", "html-css-js"] },
+        "runtime": { "type": "string" },
+        "packageManager": { "type": "string" },
+        "aiSdk": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "routingShell": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "directory": { "type": ["string", "null"] },
+        "rule": { "type": "string" }
+      }
+    },
+    "pathAliases": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "boundaries": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "importRules": {
+      "type": "object",
+      "description": "Directed Acyclic Graph (DAG) of allowed outbound dependencies per architectural layer.",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    },
+    "namingConventions": {
+      "type": "object",
+      "properties": {
+        "directories": { "type": "string" },
+        "components": { "type": "string" },
+        "hooks": { "type": "string" },
+        "services": { "type": "string" },
+        "useCases": { "type": "string" },
+        "schemas": { "type": "string" },
+        "types": { "type": "string" },
+        "utils": { "type": "string" },
+        "tests": { "type": "string" }
+      }
+    },
+    "barrelPolicy": {
+      "type": "object",
+      "required": ["mode", "allowedPaths", "forbiddenPaths"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["feature-public-api-only", "package-entrypoints-only", "minimal"] },
+        "allowedPaths": { "type": "array", "items": { "type": "string" } },
+        "forbiddenPaths": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "securityProfile": {
+      "type": "object",
+      "properties": {
+        "level": { "type": "string", "enum": ["standard", "high", "regulated"] },
+        "verticalHints": { "type": "array", "items": { "type": "string" } },
+        "serverOnlyModules": { "type": "array", "items": { "type": "string" } },
+        "forbiddenClientImports": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "maxLooseFilesPerDirectory": {
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 50
+    },
+    "promotionThreshold": {
+      "type": "integer",
+      "minimum": 2
+    },
+    "activeFeatures": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "workspaceTopology": {
+      "type": "object",
+      "properties": {
+        "apps": { "type": "array", "items": { "type": "string" } },
+        "packages": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "evolution": {
+      "type": "object",
+      "properties": {
+        "nextRecommendedPattern": { "type": ["string", "null"] },
+        "migrationTriggers": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "generatedBy": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "manifestChecksum": { "type": "string" },
+        "lastHealthScore": { "type": ["number", "null"] }
+      },
+      "additionalProperties": true
+    }
+  }
+}

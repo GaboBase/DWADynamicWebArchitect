@@ -1,0 +1,76 @@
+{
+  "$schema": "https://dynamic-web-architect.dev/schemas/architecture-manifest.schema.json",
+  "schemaVersion": "2.0.0",
+  "project": "payments-ledger-api",
+  "description": "High-integrity payments and double-entry ledger backend microservice in Node.js + TypeScript.",
+  "pattern": "hexagonal-clean",
+  "complexityLevel": "high",
+  "complexityScores": {
+    "presentation": 0,
+    "domainComplexity": 4,
+    "dataAndState": 4,
+    "securityAndCompliance": 5,
+    "multiAppScale": 1,
+    "backendAutonomy": 5
+  },
+  "stack": {
+    "framework": "node-backend",
+    "language": "typescript",
+    "runtime": "node>=18",
+    "packageManager": "npm",
+    "aiSdk": null
+  },
+  "routingShell": {
+    "enabled": false,
+    "directory": null,
+    "rule": "Not required for this framework/pattern."
+  },
+  "pathAliases": {
+    "@/*": "./src/*"
+  },
+  "boundaries": {
+    "domain": "src/domain",
+    "application": "src/application",
+    "infrastructure": "src/infrastructure",
+    "interfaces": "src/interfaces",
+    "shared": "src/shared"
+  },
+  "importRules": {
+    "src/shared": ["none"],
+    "src/domain": ["src/shared"],
+    "src/application": ["src/domain", "src/shared"],
+    "src/infrastructure": ["src/domain", "src/application", "src/shared"],
+    "src/interfaces": ["src/application", "src/domain", "src/shared"]
+  },
+  "namingConventions": {
+    "directories": "kebab-case (e.g., user-profile/, billing-history/)",
+    "components": "PascalCase (e.g., UserCard.tsx, PaymentModal.vue)",
+    "hooks": "camelCase with mandatory use prefix (e.g., useAuthSession.ts)",
+    "services": "kebab-case with .service.<ext> or .api.<ext> suffix (e.g., checkout.service.ts)",
+    "useCases": "kebab-case with .use-case.<ext> suffix (e.g., process-payment.use-case.ts)",
+    "schemas": "kebab-case with .schema.<ext> suffix (e.g., order.schema.ts)",
+    "types": "kebab-case with .types.<ext> suffix (e.g., customer.types.ts)",
+    "utils": "kebab-case with .util.<ext> suffix (e.g., format-currency.util.ts)",
+    "tests": "co-located *.test.<ext> or *.spec.<ext> next to subject under test"
+  },
+  "barrelPolicy": {
+    "mode": "minimal",
+    "allowedPaths": [],
+    "forbiddenPaths": ["src/infrastructure/index.*"]
+  },
+  "securityProfile": {
+    "level": "regulated",
+    "verticalHints": ["fintech"],
+    "serverOnlyModules": ["src/infrastructure/db"],
+    "forbiddenClientImports": ["pg", "prisma", "stripe"]
+  },
+  "maxLooseFilesPerDirectory": 10,
+  "promotionThreshold": 2,
+  "activeFeatures": ["payments", "ledger"],
+  "evolution": {
+    "nextRecommendedPattern": "monorepo-workspaces",
+    "migrationTriggers": [
+      "Multiple microservices or BFF + frontend apps need shared domain DTOs, schemas, and SDK packages"
+    ]
+  }
+}
