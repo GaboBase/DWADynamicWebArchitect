@@ -1,4 +1,7 @@
 node_modules/
+dist/
+.env*
+.cache/
 *.log
 .DS_Store
 Thumbs.db

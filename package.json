@@ -10,7 +10,9 @@
   "type": "commonjs",
   "scripts": {
     "test": "node --test tests/*.test.js",
+    "build:targets": "node scripts/build-host-packages.cjs",
     "validate": "node scripts/validate-package.cjs",
+    "validate:packages": "node scripts/validate-packages.cjs",
     "sync:global": "node scripts/sync-global-plugin.cjs",
     "self:audit": "node bin/dwa.cjs audit ."
   },

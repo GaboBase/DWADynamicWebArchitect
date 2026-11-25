@@ -27,8 +27,8 @@ Activate automatically whenever the user designs a web project, asks where a fil
 | `/dynamic-web-architect sync [dir]` (`/architect sync`) | Documentation Governance | Reconciles `architecture-manifest.json` (with SHA-256 checksum & health score) and `ARCHITECTURE.md` (preserving custom ADRs) with actual disk state. |
 | `/dynamic-web-architect migrate <target-pattern>` | Evolutionary Migration | Evaluates pattern upgrade using the Transition Cost Guardrail before recommending a phased Strangler-Fig migration. |
 
-> **Executable CLI Helper (Shell-Enabled Hosts — Antigravity, Codex, VS Code)**:
-> Run deterministic operations directly using [scripts/dwa-runner.cjs](./scripts/dwa-runner.cjs):
+> **Executable CLI & MCP Tools (Antigravity, OpenCode, Gemini CLI, Codex, VS Code)**:
+> Prefer the zero-dependency `dwa` stdio MCP server (`dwa_classify`, `dwa_place_file`, `dwa_audit`, `dwa_promote_preview`, `dwa_migrate_check`, `dwa_diagram` — strictly read-only/preview) or run deterministic CLI operations directly using [scripts/dwa-runner.cjs](./scripts/dwa-runner.cjs):
 > ```bash
 > node <skill-dir>/scripts/dwa-runner.cjs classify --context "<project description>"
 > node <skill-dir>/scripts/dwa-runner.cjs init <target-dir> --context "<description>" [--apply]

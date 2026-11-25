@@ -1,13 +1,15 @@
 # Dynamic Web Architect — Portable Multi-Host Adapters
 
-One canonical skill (`skills/dynamic-web-architect/SKILL.md`) + one zero-dependency deterministic Node.js engine (`bin/dwa.cjs`), packaged natively for **Antigravity**, **Codex**, **ChatGPT**, and **VS Code**.
+One canonical skill (`skills/dynamic-web-architect/SKILL.md`) + one zero-dependency deterministic Node.js engine (`bin/dwa.cjs` + stdio MCP server `src/mcp/server.cjs`), packaged natively for **Antigravity**, **OpenCode**, **Gemini CLI**, **Codex**, **ChatGPT**, and **VS Code**.
 
-| Platform | Native Mechanism | Slash / Trigger Command | Local CLI Execution |
+| Platform | Native Mechanism | Slash / Trigger Command | Local CLI / MCP Execution |
 | :--- | :--- | :--- | :--- |
-| **Antigravity (IDE / App / CLI)** | `plugin.json` + `skills/dynamic-web-architect/SKILL.md` + `rules/AGENTS.md` | `/dynamic-web-architect` + automatic | Yes (`scripts/dwa-runner.cjs`) |
-| **OpenAI Codex (CLI / Desktop)** | `.codex-plugin/plugin.json` + `skills/dynamic-web-architect/SKILL.md` | `$dynamic-web-architect`, `@dynamic-web-architect`, `/dynamic-web-architect` | Yes (`scripts/dwa-runner.cjs`) |
+| **Antigravity (IDE / App / CLI)** | `plugin.json` + `mcp_config.json` + `hooks.json` + `agents/dwa-master.md` + `skills/` + `rules/AGENTS.md` | `/dynamic-web-architect` + automatic | Yes (`dwa` MCP + `scripts/dwa-runner.cjs`) |
+| **OpenCode** | `opencode.json` + `.opencode/{agents,commands}/` + `AGENTS.md` + `.agents/skills/` | `/dynamic-web-architect` + `dwa-master` | Yes (`dwa` local MCP + CLI) |
+| **Gemini CLI** | `gemini-extension.json` + `GEMINI.md` + `commands/dwa.toml` + `skills/` | `/dwa` + natural language | Yes (`dwa` MCP + CLI) |
+| **OpenAI Codex (CLI / Desktop)** | `.codex-plugin/plugin.json` + `.mcp.json` + `skills/dynamic-web-architect/SKILL.md` | `$dynamic-web-architect`, `@dynamic-web-architect`, `/dynamic-web-architect` | Yes (`dwa` MCP + `scripts/dwa-runner.cjs`) |
 | **ChatGPT (Custom GPT / Projects / Plugins)** | `.codex-plugin/plugin.json` + `chatgpt/GPT_INSTRUCTIONS.md` | `/dynamic-web-architect` + natural language | Prompt-native (no local disk CLI) |
-| **VS Code (Copilot Chat / Agent Mode)** | `.github/prompts/dynamic-web-architect.prompt.md` + `.github/instructions/dynamic-web-architect.instructions.md` | `/dynamic-web-architect` + automatic on `src/**` | Yes (Agent terminal + `vscode/tasks.template.json`) |
+| **VS Code (Copilot Chat / Agent Mode)** | `.vscode/mcp.json` + `.github/prompts/dynamic-web-architect.prompt.md` + `.github/instructions/dynamic-web-architect.instructions.md` | `/dynamic-web-architect` + automatic on `src/**` | Yes (`dwa` MCP + Agent terminal + `vscode/tasks.template.json`) |
 
 ## Quick Install per Platform
 

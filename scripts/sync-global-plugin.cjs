@@ -15,15 +15,20 @@ const TARGET_ROOT = path.join(os.homedir(), '.gemini', 'config', 'plugins', 'dyn
 
 const INCLUDE_PATHS = [
   'plugin.json',
+  'mcp_config.json',
+  'hooks.json',
   '.codex-plugin',
   'package.json',
   'README.md',
+  'ANTIGRAVITY_HANDOFF.md',
+  'agents',
   'assets',
   'rules',
   'schemas',
   'skills',
   'bin',
   'src',
+  'scripts/dwa-boundary-guard.cjs',
   'docs',
   'portable-adapters',
   '.github'

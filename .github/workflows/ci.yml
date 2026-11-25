@@ -32,8 +32,14 @@ jobs:
       - name: Run test suite
         run: npm test
 
-      - name: Validate package
+      - name: Build multi-host targets
+        run: npm run build:targets
+
+      - name: Validate root package
         run: npm run validate
+
+      - name: Validate multi-host packages and MCP servers
+        run: npm run validate:packages
 
       - name: Run self-audit
         run: npm run self:audit
