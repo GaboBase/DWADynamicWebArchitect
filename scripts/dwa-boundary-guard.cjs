@@ -127,6 +127,23 @@ function isRelevantTargetFile(relPath) {
   return /^(src|internal|apps|packages)\//.test(norm);
 }
 
+function findExistingDir(startPath) {
+  let curr = path.resolve(startPath);
+  while (true) {
+    if (fs.existsSync(curr)) {
+      return fs.statSync(curr).isDirectory() ? curr : path.dirname(curr);
+    }
+    const parent = path.dirname(curr);
+    if (parent === curr) return null;
+    curr = parent;
+  }
+}
+
+function isOutsideBase(baseDir, targetPath) {
+  const rel = toPosix(path.relative(baseDir, targetPath));
+  return rel === '..' || rel.startsWith('../') || path.isAbsolute(rel);
+}
+
 function evaluateGuard({ payload = {}, env = process.env } = {}) {
   if (env.DWA_HOOK_DISABLED === '1' || env.DWA_BOUNDARY_GUARD === '0') {
     return { active: false, reason: 'disabled', advisory: null };
@@ -138,12 +155,12 @@ function evaluateGuard({ payload = {}, env = process.env } = {}) {
     ? (path.isAbsolute(rawFile) ? path.resolve(rawFile) : path.resolve(baseCwd, rawFile))
     : null;
 
-  const probeDir = resolvedFile
-    ? (fs.existsSync(resolvedFile) && fs.statSync(resolvedFile).isDirectory() ? resolvedFile : path.dirname(resolvedFile))
-    : baseCwd;
+  const probeDir = resolvedFile ? findExistingDir(resolvedFile) : baseCwd;
 
-  let workspaceRoot = fs.existsSync(probeDir) ? findManifestRoot(probeDir) : null;
-  if (!workspaceRoot) {
+  // When a specific edited file is provided, resolve its owning workspace from the file's own hierarchy.
+  // Never fall back to an unrelated baseCwd manifest (such as the plugin install directory).
+  let workspaceRoot = probeDir ? findManifestRoot(probeDir) : null;
+  if (!workspaceRoot && !resolvedFile) {
     workspaceRoot = findManifestRoot(baseCwd);
   }
 
@@ -152,19 +169,27 @@ function evaluateGuard({ payload = {}, env = process.env } = {}) {
     return { active: false, reason: 'non-dwa-workspace', advisory: null };
   }
 
-  const targetWorkspace = workspaceRoot || baseCwd;
+  const targetWorkspace = workspaceRoot || (resolvedFile && probeDir && isOutsideBase(baseCwd, resolvedFile) ? probeDir : baseCwd);
+  if (resolvedFile && isOutsideBase(targetWorkspace, resolvedFile)) {
+    return { active: false, reason: 'outside-workspace', advisory: null };
+  }
+
   const editedRel = resolvedFile ? toPosix(path.relative(targetWorkspace, resolvedFile)) : null;
 
-  if (editedRel && !editedRel.startsWith('..') && !isRelevantTargetFile(editedRel)) {
+  if (editedRel && !isRelevantTargetFile(editedRel)) {
     return { active: false, reason: 'non-source-file', advisory: null };
   }
 
   const audit = auditProject(targetWorkspace);
   let relevant = audit.findings;
-  if (editedRel && !editedRel.startsWith('..')) {
+  if (editedRel && editedRel !== 'architecture-manifest.json') {
     const editedDir = path.posix.dirname(editedRel);
     const matching = audit.findings.filter(
-      f => f.path === editedRel || f.target === editedRel || f.path === editedDir
+      f =>
+        f.path === editedRel ||
+        f.target === editedRel ||
+        f.path === editedDir ||
+        (Array.isArray(f.cycle) && f.cycle.includes(editedRel))
     );
     if (matching.length > 0) {
       relevant = matching;

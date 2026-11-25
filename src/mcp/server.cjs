@@ -249,7 +249,10 @@ function sendError(id, code, message, data) {
 }
 
 function resolveExistingDirectory(rawDir) {
-  const resolved = path.resolve(String(rawDir || process.cwd()));
+  if (rawDir !== undefined && rawDir !== null && typeof rawDir !== 'string') {
+    throw new Error('Argument "target_dir" must be a string path.');
+  }
+  const resolved = path.resolve(rawDir && rawDir.trim() ? rawDir.trim() : process.cwd());
   if (!fs.existsSync(resolved)) {
     throw new Error(`Target directory does not exist: ${resolved}`);
   }
@@ -260,9 +263,17 @@ function resolveExistingDirectory(rawDir) {
 }
 
 function resolveOptionalTargetDir(rawDir) {
-  if (!rawDir) return null;
+  if (rawDir === undefined || rawDir === null || rawDir === '') return null;
+  if (typeof rawDir !== 'string') {
+    throw new Error('Argument "target_dir" must be a string path.');
+  }
+  if (!rawDir.trim()) return null;
   return resolveExistingDirectory(rawDir);
 }
+
+const VALID_SCOPES = new Set(['feature', 'shared', 'core', 'route']);
+const VALID_ATOMIC_LEVELS = new Set(['atoms', 'molecules', 'organisms', 'templates']);
+const VALID_PROMOTE_SCOPES = new Set(['shared', 'core']);
 
 function handleClassify(args = {}) {
   const context = typeof args.context === 'string' ? args.context.trim() : '';
@@ -288,21 +299,29 @@ function handlePlaceFile(args = {}) {
   if (!filename) {
     throw new Error('Argument "filename" must be a non-empty string.');
   }
-  const targetDir = resolveExistingDirectory(args.target_dir || process.cwd());
+  const scope = typeof args.scope === 'string' && args.scope.trim() ? args.scope.trim() : null;
+  if (scope && !VALID_SCOPES.has(scope)) {
+    throw new Error(`Invalid "scope": "${scope}". Expected one of: ${Array.from(VALID_SCOPES).join(', ')}.`);
+  }
+  const atomicLevel = typeof args.atomic_level === 'string' && args.atomic_level.trim() ? args.atomic_level.trim() : null;
+  if (atomicLevel && !VALID_ATOMIC_LEVELS.has(atomicLevel)) {
+    throw new Error(`Invalid "atomic_level": "${atomicLevel}". Expected one of: ${Array.from(VALID_ATOMIC_LEVELS).join(', ')}.`);
+  }
+  const targetDir = resolveExistingDirectory(args.target_dir);
   return dwa.placeFile({
     filename,
     context: typeof args.context === 'string' ? args.context : '',
     feature: typeof args.feature === 'string' && args.feature.trim() ? args.feature.trim() : null,
-    scope: typeof args.scope === 'string' && args.scope.trim() ? args.scope.trim() : null,
+    scope,
     role: typeof args.role === 'string' && args.role.trim() ? args.role.trim() : null,
-    atomicLevel: typeof args.atomic_level === 'string' && args.atomic_level.trim() ? args.atomic_level.trim() : null,
+    atomicLevel,
     targetDir,
     apply: false
   });
 }
 
 function handleAudit(args = {}) {
-  const targetDir = resolveExistingDirectory(args.target_dir || process.cwd());
+  const targetDir = resolveExistingDirectory(args.target_dir);
   const options = {};
   if (typeof args.max_loose_files === 'number' && Number.isFinite(args.max_loose_files) && args.max_loose_files > 0) {
     options.maxLooseFiles = Math.floor(args.max_loose_files);
@@ -315,10 +334,18 @@ function handlePromotePreview(args = {}) {
   if (!sourcePath) {
     throw new Error('Argument "source_path" must be a non-empty string.');
   }
-  const targetDir = resolveExistingDirectory(args.target_dir || process.cwd());
+  let targetScope = 'shared';
+  if (args.target_scope !== undefined && args.target_scope !== null && args.target_scope !== '') {
+    const rawScope = String(args.target_scope).trim();
+    if (!VALID_PROMOTE_SCOPES.has(rawScope)) {
+      throw new Error(`Invalid "target_scope": "${rawScope}". Expected "shared" or "core".`);
+    }
+    targetScope = rawScope;
+  }
+  const targetDir = resolveExistingDirectory(args.target_dir);
   return dwa.promoteFile({
     sourcePath,
-    targetScope: args.target_scope === 'core' ? 'core' : 'shared',
+    targetScope,
     destinationPath: typeof args.destination_path === 'string' && args.destination_path.trim() ? args.destination_path.trim() : null,
     targetDir,
     apply: false
@@ -330,7 +357,7 @@ function handleMigrateCheck(args = {}) {
   if (!targetPattern) {
     throw new Error('Argument "target_pattern" must be a non-empty string.');
   }
-  const targetDir = resolveExistingDirectory(args.target_dir || process.cwd());
+  const targetDir = resolveExistingDirectory(args.target_dir);
   return dwa.planMigration({
     targetDir,
     targetPattern,
@@ -339,7 +366,7 @@ function handleMigrateCheck(args = {}) {
 }
 
 function handleDiagram(args = {}) {
-  const targetDir = resolveExistingDirectory(args.target_dir || process.cwd());
+  const targetDir = resolveExistingDirectory(args.target_dir);
   const existingManifest = loadManifestIfPresent(targetDir);
   if (existingManifest) {
     return {
@@ -374,20 +401,20 @@ function handleDiagram(args = {}) {
 }
 
 async function handleRequest(msg) {
-  if (!msg || typeof msg !== 'object') {
+  if (!msg || typeof msg !== 'object' || Array.isArray(msg)) {
     sendError(null, -32600, 'Invalid JSON-RPC request.');
     return;
   }
 
   const { id, method, params } = msg;
 
-  // Notifications have no id and require no response
-  if (method === 'notifications/initialized' || method === 'notifications/cancelled') {
+  if (typeof method !== 'string') {
+    sendError(id, -32600, 'Missing JSON-RPC method.');
     return;
   }
 
-  if (typeof method !== 'string') {
-    sendError(id, -32600, 'Missing JSON-RPC method.');
+  // JSON-RPC 2.0 notifications omit `id` and MUST NOT receive any response
+  if (id === undefined) {
     return;
   }
 
@@ -423,7 +450,12 @@ async function handleRequest(msg) {
 
       case 'tools/call': {
         const name = params?.name;
-        const args = params?.arguments || {};
+        const rawArgs = params?.arguments;
+        if (rawArgs !== undefined && (rawArgs === null || typeof rawArgs !== 'object' || Array.isArray(rawArgs))) {
+          sendError(id, -32602, 'Tool "arguments" must be a JSON object.');
+          return;
+        }
+        const args = rawArgs || {};
         try {
           let data;
           switch (name) {

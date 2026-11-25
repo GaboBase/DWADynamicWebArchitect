@@ -20,6 +20,8 @@ const INCLUDE_PATHS = [
   '.codex-plugin',
   'package.json',
   'README.md',
+  'ARCHITECTURE.md',
+  'architecture-manifest.json',
   'ANTIGRAVITY_HANDOFF.md',
   'agents',
   'assets',

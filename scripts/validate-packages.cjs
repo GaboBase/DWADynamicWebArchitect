@@ -240,6 +240,41 @@ function checkAntigravityMcpConfig(baseDir, targetName) {
   }
 }
 
+function checkHooksConfig(baseDir, targetName) {
+  const hooksPath = path.join(baseDir, 'hooks.json');
+  const hooksCfg = readJson(hooksPath, `${targetName}/hooks.json`);
+  if (!hooksCfg) return;
+  const guard = hooksCfg['dwa-boundary-guard'];
+  if (!guard || !Array.isArray(guard.PostToolUse) || guard.PostToolUse.length === 0) {
+    errors.push(`[${targetName}] hooks.json must define dwa-boundary-guard.PostToolUse`);
+    return;
+  }
+  const entry = guard.PostToolUse[0];
+  if (!entry.matcher || !Array.isArray(entry.hooks) || entry.hooks.length === 0) {
+    errors.push(`[${targetName}] hooks.json PostToolUse entry must define matcher and hooks`);
+    return;
+  }
+  const hookScript = path.join(baseDir, 'scripts', 'dwa-boundary-guard.cjs');
+  if (!fs.existsSync(hookScript)) {
+    errors.push(`[${targetName}] Missing scripts/dwa-boundary-guard.cjs referenced by hooks.json`);
+    return;
+  }
+  const nonDwaDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dwa-hook-smoke-'));
+  try {
+    const res = spawnSync(process.execPath, [hookScript], {
+      cwd: baseDir,
+      input: JSON.stringify({ cwd: nonDwaDir, tool_name: 'write_file', tool_input: { Path: path.join(nonDwaDir, 'src', 'a.ts') } }),
+      encoding: 'utf8',
+      timeout: 5000
+    });
+    if (res.status !== 0 || res.stdout.trim() !== '') {
+      errors.push(`[${targetName}] PostToolUse boundary guard failed non-DWA inertness check (status=${res.status}, stdout=${res.stdout})`);
+    }
+  } finally {
+    fs.rmSync(nonDwaDir, { recursive: true, force: true });
+  }
+}
+
 function runMcpSmoke(baseDir, targetName) {
   const serverEntry = path.join(baseDir, 'src', 'mcp', 'server.cjs');
   if (!fs.existsSync(serverEntry)) {
@@ -389,11 +424,9 @@ if (rootPkgRes.status !== 0) {
 checkSkillsRulesAndAgent(ROOT, 'root');
 checkLogoSvg(ROOT, 'root');
 checkAntigravityMcpConfig(ROOT, 'root');
+checkHooksConfig(ROOT, 'root');
 checkMarkdownLinks(ROOT, 'root', walkRootFiles(ROOT));
 checkPrivatePathLeaks(ROOT, 'root', walkRootFiles(ROOT));
-if (!fs.existsSync(path.join(ROOT, 'hooks.json'))) {
-  errors.push('[root] Missing hooks.json');
-}
 if (!fs.existsSync(path.join(ROOT, 'ANTIGRAVITY_HANDOFF.md'))) {
   errors.push('[root] Missing ANTIGRAVITY_HANDOFF.md');
 }
@@ -423,6 +456,7 @@ for (const target of requiredTargets) {
     }
     if (!fs.existsSync(path.join(dir, 'hooks.json'))) errors.push('[antigravity] Missing hooks.json');
     if (!fs.existsSync(path.join(dir, 'ANTIGRAVITY_HANDOFF.md'))) errors.push('[antigravity] Missing ANTIGRAVITY_HANDOFF.md');
+    checkHooksConfig(dir, 'antigravity');
     checkAntigravityMcpConfig(dir, 'antigravity');
     runMcpSmoke(dir, 'antigravity');
     runCliSmoke(dir, 'antigravity');

@@ -68,6 +68,9 @@ function promoteFile({
   if (!fs.existsSync(absSource)) {
     throw new Error(`Source file not found: ${sourcePath}`);
   }
+  if (!fs.statSync(absSource).isFile()) {
+    throw new Error(`Source path is not a file: ${sourcePath}`);
+  }
 
   const sourceRel = toPosix(path.relative(resolvedTargetDir, absSource));
   const destRel = destinationPath

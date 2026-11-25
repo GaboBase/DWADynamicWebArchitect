@@ -145,8 +145,7 @@ function buildOpencodeTarget() {
   writeJson(path.join(dir, 'opencode.json'), {
     $schema: 'https://opencode.ai/config.json',
     instructions: [
-      'AGENTS.md',
-      'rules/AGENTS.md'
+      'AGENTS.md'
     ],
     mcp: {
       dwa: {

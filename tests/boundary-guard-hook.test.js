@@ -107,3 +107,48 @@ test('PostToolUse boundary guard stays silent on clean edits and informs non-des
     fs.rmSync(dwaDir, { recursive: true, force: true });
   }
 });
+
+test('PostToolUse boundary guard detects cycles on non-first cycle node, manifest edits, and stays inert for external non-DWA files', () => {
+  const dwaDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dwa-hook-edge-'));
+  const nonDwaDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dwa-hook-ext-'));
+  try {
+    dwa.scaffoldProject({
+      targetDir: dwaDir,
+      projectName: 'edge-app',
+      context: 'Next.js App Router SaaS billing',
+      apply: true
+    });
+
+    const cycleA = path.join(dwaDir, 'src/features/billing/utils/cycle-a.util.ts');
+    const cycleB = path.join(dwaDir, 'src/features/billing/utils/cycle-b.util.ts');
+    fs.writeFileSync(cycleA, "import { b } from './cycle-b.util';\nexport const a = () => b;\n", 'utf8');
+    fs.writeFileSync(cycleB, "import { a } from './cycle-a.util';\nexport const b = () => a;\n", 'utf8');
+
+    // Editing the second file in a cycle must still report CIRCULAR_DEPENDENCY
+    const cycleRes = runHook({ cwd: dwaDir, tool_name: 'edit_file', tool_input: { Path: cycleB } }, dwaDir);
+    assert.equal(cycleRes.status, 0);
+    const cycleParsed = JSON.parse(cycleRes.stdout.trim());
+    assert.match(cycleParsed.hookSpecificOutput.additionalContext, /CIRCULAR_DEPENDENCY/);
+
+    // Editing architecture-manifest.json surfaces workspace violations
+    const manRes = runHook({
+      cwd: dwaDir,
+      tool_name: 'write_file',
+      tool_input: { Path: path.join(dwaDir, 'architecture-manifest.json') }
+    }, dwaDir);
+    assert.equal(manRes.status, 0);
+    const manParsed = JSON.parse(manRes.stdout.trim());
+    assert.match(manParsed.hookSpecificOutput.additionalContext, /CIRCULAR_DEPENDENCY/);
+
+    // Editing a file inside an unrelated non-DWA workspace must remain silent even if cwd is a dirty DWA workspace
+    fs.mkdirSync(path.join(nonDwaDir, 'src'), { recursive: true });
+    const extFile = path.join(nonDwaDir, 'src', 'index.ts');
+    fs.writeFileSync(extFile, 'export const ok = true;\n', 'utf8');
+    const extRes = runHook({ cwd: dwaDir, tool_name: 'write_file', tool_input: { Path: extFile } }, dwaDir);
+    assert.equal(extRes.status, 0);
+    assert.equal(extRes.stdout.trim(), '');
+  } finally {
+    fs.rmSync(dwaDir, { recursive: true, force: true });
+    fs.rmSync(nonDwaDir, { recursive: true, force: true });
+  }
+});

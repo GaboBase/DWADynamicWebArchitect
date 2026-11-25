@@ -134,3 +134,26 @@ test('MCP server drains buffered line without trailing newline on stdin EOF and 
   assert.equal(parsed[1].id, 99);
   assert.deepEqual(parsed[1].result, {});
 });
+
+test('MCP server ignores unknown JSON-RPC notifications and validates tool arguments cleanly', () => {
+  const { parsed } = runMcpSession([
+    { jsonrpc: '2.0', method: 'notifications/roots/list_changed' },
+    { jsonrpc: '2.0', id: 0, method: 'ping', params: {} },
+    { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'dwa_place_file', arguments: { filename: 'Button.tsx', scope: 'bogus' } } },
+    { jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'dwa_promote_preview', arguments: { source_path: 'src', target_dir: ROOT } } },
+    { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'dwa_classify', arguments: 'bad-args' } },
+    { jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'dwa_classify', arguments: { context: 'SaaS web app', target_dir: 123 } } }
+  ]);
+
+  // Notification must produce zero response lines, so only ids 0..4 appear
+  assert.equal(parsed.length, 5);
+  const byId = new Map(parsed.map(m => [m.id, m]));
+  assert.deepEqual(byId.get(0).result, {});
+  assert.equal(byId.get(1).result.isError, true);
+  assert.match(JSON.parse(byId.get(1).result.content[0].text).error, /Invalid "scope"/);
+  assert.equal(byId.get(2).result.isError, true);
+  assert.match(JSON.parse(byId.get(2).result.content[0].text).error, /Source path is not a file/);
+  assert.equal(byId.get(3).error.code, -32602);
+  assert.equal(byId.get(4).result.isError, true);
+  assert.match(JSON.parse(byId.get(4).result.content[0].text).error, /must be a string path/);
+});
